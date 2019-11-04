@@ -94,8 +94,9 @@ public class TestKafkaWriter extends SingerTestBase {
       list.add(logMessage);
     }
 
-    List<List<ProducerRecord<byte[], byte[]>>> messageCollation = writer
-        .messageCollation(partitions, "topicx", logMessages);
+    Map<Integer, Map<Integer, LoggingAuditHeaders>> mapOfHeadersMap = new HashMap<>();
+    Map<Integer, List<ProducerRecord<byte[], byte[]>>> messageCollation = writer
+        .messageCollation(partitions, "topicx", logMessages, mapOfHeadersMap);
     for (int i = 0; i < messageCollation.size(); i++) {
       List<ProducerRecord<byte[], byte[]>> writerOutput = messageCollation.get(i);
       List<LogMessage> originalData = msgPartitionMap.get(i);
@@ -168,7 +169,7 @@ public class TestKafkaWriter extends SingerTestBase {
       logMessage.setMessage(ByteBuffer.allocate(100).put(String.valueOf(i).getBytes()));
       LoggingAuditHeaders headers = new LoggingAuditHeaders()
           .setHost("host-name")
-          .setTopic("topicx")
+          .setLogName("topicx")
           .setPid(pid)
           .setSession(session)
           .setLogSeqNumInSession(i);
@@ -184,8 +185,9 @@ public class TestKafkaWriter extends SingerTestBase {
       list.add(logMessage);
     }
 
-    List<List<ProducerRecord<byte[], byte[]>>> messageCollation = writer
-        .messageCollation(partitions, "topicx", logMessages);
+    Map<Integer, Map<Integer, LoggingAuditHeaders>> mapOfHeadersMap = new HashMap<>();
+    Map<Integer, List<ProducerRecord<byte[], byte[]>>> messageCollation = writer
+        .messageCollation(partitions, "topicx", logMessages, mapOfHeadersMap);
     for (int i = 0; i < messageCollation.size(); i++) {
       List<ProducerRecord<byte[], byte[]>> writerOutput = messageCollation.get(i);
       List<LogMessage> originalData = msgPartitionMap.get(i);

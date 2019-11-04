@@ -40,6 +40,7 @@ public class KafkaWritingTask implements Callable<KafkaWritingTaskResult> {
   private int writeTimeoutInSeconds;
   private long taskCreationTimeInMillis;
   private String leaderNode;
+  private int partition = -1;
 
   public KafkaWritingTask(KafkaProducer<byte[], byte[]> producer,
                           List<ProducerRecord<byte[], byte[]>> msgs,
@@ -51,6 +52,7 @@ public class KafkaWritingTask implements Callable<KafkaWritingTaskResult> {
     this.taskCreationTimeInMillis = System.currentTimeMillis();
     try {
       leaderNode = sortedPartitions.get(msgs.get(0).partition()).leader().host();
+      partition = sortedPartitions.get(msgs.get(0).partition()).partition();
     } catch (Exception e) {
       LOG.error("Error getting leader node from partition metadata", e);
       OpenTsdbMetricConverter.incr(SingerMetrics.LEADER_INFO_EXCEPTION, 1, "host=" + KafkaWriter.HOSTNAME);
@@ -63,6 +65,7 @@ public class KafkaWritingTask implements Callable<KafkaWritingTaskResult> {
     ArrayList<Future<RecordMetadata>> futures = new ArrayList<>();
     KafkaWritingTaskResult result = null;
     String topic = UNKOWN_TOPIC;
+    List<RecordMetadata> recordMetadataList = new ArrayList<>();
 
     try {
       if (messages.size() > 0) {
@@ -86,6 +89,7 @@ public class KafkaWritingTask implements Callable<KafkaWritingTaskResult> {
           // used for tracking metrics
           if(recordMetadata != null) {
             bytesWritten += recordMetadata.serializedKeySize() + recordMetadata.serializedValueSize();
+            recordMetadataList.add(recordMetadata);
           }
         }
       }
@@ -96,6 +100,8 @@ public class KafkaWritingTask implements Callable<KafkaWritingTaskResult> {
         // we shouldn't have latency creater than 2B milliseoncds so it should be okay
         // to downcast to integer
         result = new KafkaWritingTaskResult(true, bytesWritten, (int) kafkaLatency);
+        result.setRecordMetadataList(recordMetadataList);
+        result.setPartition(partition);
         OpenTsdbMetricConverter.incrGranular(SingerMetrics.BROKER_WRITE_SUCCESS, 1, "broker=" + leaderNode);
         OpenTsdbMetricConverter.addGranularMetric(SingerMetrics.BROKER_WRITE_LATENCY, kafkaLatency, "broker=" + leaderNode);
       }
