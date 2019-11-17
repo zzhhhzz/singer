@@ -144,3 +144,23 @@ struct LoggingAuditEvent {
 
 }
 
+struct  AuditDemoLog1Message {
+  1: required i64 timestamp;
+  2: required i64 seqId; // starts from 0
+  3: optional binary payload;
+  4: optional LoggingAuditHeaders loggingAuditHeaders;
+}
+
+struct  AuditDemoLog2Message {
+  1: required i64 timestamp;
+  2: required i64 seqId; // starts from 0
+  3: optional binary payload;
+  4: optional LoggingAuditHeaders loggingAuditHeaders;
+}
+
+struct  AuditDemoLog3Message {
+  1: required i64 timestamp;
+  2: required i64 seqId; // starts from 0
+  3: optional binary payload;
+  4: optional LoggingAuditHeaders loggingAuditHeaders;
+}
