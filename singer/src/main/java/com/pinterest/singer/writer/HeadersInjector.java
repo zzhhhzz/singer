@@ -26,11 +26,10 @@ import org.apache.kafka.common.header.Headers;
 public interface HeadersInjector {
 
   /**
-   * Given ProducerRecord's Headers object and LogMessage object
+   * Given ProducerRecord's Headers object and String key and byte[] value
    *
    * @return The original ProducerRecord's Headers object with some headers added.
    */
-
-   Headers addHeaders(Headers headers, LogMessage logMessage);
+   Headers addHeaders(Headers headers, String key, byte[] value);
 
 }
